@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>后台</title>
+    <link rel="stylesheet" href="__STATIC__/layui/css/layui.css">
+    <script src="__STATIC__/jquery-3.1.1.min.js"></script>
+    <script src="__STATIC__/layui/layui.js"></script>
+    <!-- <script src="__STATIC__/layui/public.js"></script>   -->
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+
+{include file="public/header" /}
+{include file="public/left" /}
+
+<div class="layui-body" style="padding-top:20px;">
+    
+    {__CONTENT__}
+    
+</div>
+
+</div>
+</body>
+</html>
+<script>
+//JavaScript代码区域
+layui.use('element', function(){
+  var element = layui.element;
+  
+});
+</script>

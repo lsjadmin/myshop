@@ -1,0 +1,355 @@
+<script type="text/javascript" src="__STATIC__/js/n_nav.js"></script>
+{include file="public/top" /}
+<!--End Menu End--> 
+<div class="i_bg">  
+    <div class="content mar_20">
+    	<img src="__STATIC__/images/img1.jpg" />        
+    </div>
+    
+   <!--Begin 第一步：查看购物车 Begin -->
+   <div class="content mar_20">
+    <table border="0" class="car_tab" style="width:1200px; margin-bottom:50px;" cellspacing="0" cellpadding="0">
+      <tr>
+        <td class="car_th" width="150"><input type="checkbox" class="checkbox"></td>
+        <td class="car_th" width="490">商品名称</td>
+        <td class="car_th" width="150">购买数量</td>
+        <td class="car_th" width="150">单价</td>
+        <td class="car_th" width="130">小计</td>
+        <td class="car_th" width="150">操作</td>
+      </tr>
+      {volist name="cartInfo" id="v"}
+      <tr goods_id={$v.goods_id} goods_num={$v.goods_num} goods_name={$v.goods_name} goods_price={$v.goods_price} goods_img={$v.goods_img}>
+          <td class="car_th" width="150"><input type="checkbox" class="box"></td>
+        <td class="aa">
+            <div class="c_s_img">
+                <img src="__ROOT__/uploads/{$v.goods_img}" width="73" height="73" />
+            </div>
+            <span class="goods_name">{$v.goods_name}</span>
+        </td>
+       
+        <td align="center">
+            <div class="c_num">
+                <input type="button" value=""  id="jian"class="car_btn_1" />
+                <input type="text" value="{$v.buy_num}" id="buy_num"name=""  class="car_ipt" />  
+                <input type="button" value="" id="jia" class="car_btn_2" />
+            </div>
+            
+        </td>
+        <td align="center" style="color:#ff4e00;">
+          <span style="text-decoration:line-through;">￥{$v.market_price}</span><br>
+          ￥<span class="pricea">{$v.goods_price}</span>              
+        </td>
+        <td align="center" class="total" style="color:#ff4e00;"><span>{$v['goods_price']*$v['buy_num']}</span>￥</td>
+        <td align="center"><a id="del">删除</a>&nbsp; &nbsp;
+      
+            <a href="#" id="praise">加入收藏</a>
+        </td>
+           
+            <!-- <a href="#" id="praise">已经收藏</a></td> -->
+           
+      </tr>
+      {/volist}
+      <tr height="70">
+          <td colspan="6" style="font-family:'Microsoft YaHei'; border-bottom:0;">
+            <label class="r_rad">
+            <input type="checkbox" name="clear" />
+          <input type="button" name="clear" id="delete" value="清空购物车">
+          <!-- <input type="button" name="clear" id="praise" value="收藏"> -->
+          </label>
+            <span class="fr">商品总价：<b style="font-size:22px; color:#ff4e00;">￥0</b></span>
+        </td>
+      </tr>
+      <tr valign="top" height="150">
+          <td colspan="6" align="right">
+            <a href="{:url('index/index')}"><img src="__STATIC__/images/buy1.gif" /></a>&nbsp; &nbsp; 
+            <a href="#"><img src="__STATIC__/images/buy2.gif" / id="confirmCount"></a>
+        </td>
+      </tr>
+    </table>
+    
+</div>
+    
+    
+    <!--Begin 弹出层-删除商品 Begin-->
+    <div id="fade" class="black_overlay"></div>
+    <div id="MyDiv" class="white_content">             
+        <div class="white_d">
+            <div class="notice_t">
+                <span class="fr" style="margin-top:10px; cursor:pointer;" onclick="CloseDiv('MyDiv','fade')"><img src="__STATIC__/images/close.gif" /></span>
+            </div>
+            <div class="notice_c">
+           		
+                <table border="0" align="center" style="font-size:16px;" cellspacing="0" cellpadding="0">
+                  <tr valign="top">
+                    <td>您确定要把该商品移除购物车吗？</td>
+                  </tr>
+                  <tr height="50" valign="bottom">
+                    <td><a href="#" class="b_sure">确定</a><a href="#" class="b_buy">取消</a></td>
+                  </tr>
+                </table>
+                    
+            </div>
+        </div>
+    </div>    
+    <!--End 弹出层-删除商品 End-->
+    <script>
+       $(function(){
+           layui.use(['layer'],function(){
+            var layer=layui.layer;
+            //    var _td=$("tr").find("td[class='total']");
+            //    //console.log(_td);
+            //    var count=0;
+            //    _td.each(function(index){
+            //        count+=parseInt($(this).find("span").text());
+            //    })
+            //    //console.log(count);
+            //    $("tr").find("span[class='fr']").find("b").text(count);
+       
+           //点击减号
+           $(document).on("click","#jian",function(){
+               var _this=$(this);
+               var buy_num=parseInt(_this.next("input").val());
+               //console.log(buy_num);
+               var goods_id=_this.parents("tr").attr("goods_id");
+               
+               if(buy_num<=1){
+                   _this.prop('disabled',true);
+               }else{
+                   buy_num-=1;
+                   _this.next("input").val(buy_num);
+                   _this.siblings("input[class='car_btn_2']").prop('disabled',false);
+               }
+               
+               //小计
+
+               //传入控制器
+               $.post(
+                "{:url('cart/changePrice')}",
+                {goods_id:goods_id,buy_num:buy_num},
+                function(res){
+                  //小计
+                  var goods_price=parseInt(_this.parents().next("td").find("span").last().text());
+                    //console.log(goods_price);
+                    var a=goods_price*buy_num;
+                    // console.log(a);
+                    _this.parents().next("td").next("td").find("span").text(a)
+                    getCountprice()
+                }
+                );
+           })
+           //点击加号
+           $(document).on("click",".car_btn_2",function(){
+               //改变js页面价格
+               var _this=$(this);
+               var buy_num=parseInt(_this.prev("input").val());
+             //  console.log(buy_num);
+                var goods_num=_this.parents("tr").attr("goods_num");
+               //console.log(goods_num);
+                var goods_id=_this.parents("tr").attr("goods_id");
+               // console.log(goods_id);
+               if(buy_num>=goods_num){
+                     _this.prop('disabled',true);
+                  }else{ 
+                        buy_num+=1;
+                        _this.prev('input').val(buy_num);
+                        _this.siblings("input[class='car_btn_1']").prop('disabled',false);
+                }
+                //传入控制器
+                $.post(
+                "{:url('cart/changePrice')}",
+                {goods_id:goods_id,buy_num:buy_num},
+                function(res){
+                //小计
+                    var goods_price=parseInt(_this.parents().next("td").find("span").last().text());
+                    //console.log(goods_price);
+                    var a=goods_price*buy_num;
+                    // console.log(a);
+                    _this.parents().next("td").next("td").find("span").text(a)
+                    getCountprice()
+                }
+                    );
+             
+            }) 
+            //失去焦点
+           $(document).on("blur","#buy_num",function(){
+              // alert ("1");
+              var _this=$(this);
+              var buy_num=parseInt(_this.val());
+              var goods_num=_this.parents("tr").attr("goods_num");
+              var goods_id=_this.parents("tr").attr("goods_id");
+              //console.log(buy_num);
+              var reg=/^[1-9]\d*$/;
+              if(!reg.test(buy_num)){
+                  _this.val(1);
+              }else if(buy_num<=1){
+                _this.val(1);
+              }else if(buy_num>=goods_num){
+                _this.val(goods_num);
+              }else{
+                _this.val(buy_num);
+              }
+                buy_num=parseInt(_this.val());
+               //传入控制器
+               $.post(
+                "{:url('cart/changePrice')}",
+                {goods_id:goods_id,buy_num:buy_num},
+                function(res){
+                //小计
+               
+                    var goods_price=parseInt(_this.parents().next("td").find("span").last().text());
+                    //console.log(goods_price);
+                    var a=goods_price*buy_num;
+                    // console.log(a);
+                    _this.parents().next("td").next("td").find("span").text(a)
+                   
+                }
+                );
+               
+           })  
+            //复选框
+            $(document).on("click",".box",function(){
+                //alert ('2');
+                getCountprice()
+          
+            })
+            //全选
+            $(document).on("click",".checkbox",function(){
+                var _this=$(this);
+                var ststus=_this.prop('checked');
+                $('.box').prop("checked",ststus);
+                getCountprice()
+                //alert ('2');
+            })
+            //点击复选框总价变化（方法）
+            function getCountprice(){
+                var box=$(".box");
+                var goods_id='';
+                box.each(function(index){
+                    if($(this).prop("checked")==true){
+                        goods_id+=$(this).parents("tr").attr("goods_id")+',';
+                    }
+                });
+                     goods_id=goods_id.substr(0,goods_id.length-1);
+              //console.log(goods_id);
+              $.post(
+                  "{:url('cart/getCountPrice')}",
+                  {goods_id:goods_id},
+                  function(res){
+                    $(".fr").find('b').text('￥'+res);
+                  }
+              )
+            }
+            //点击删除
+            $(document).on("click","#del",function(){
+                //alert("a");
+                var _this=$(this);
+                var goods_id=_this.parents("tr").attr("goods_id");
+                layer.confirm('是否删除？',{icon:3,title:'提示'},function(){
+                    $.post(
+                        "{:url('Cart/cartdelete')}",
+                        {goods_id,goods_id},
+                        function(res){
+                            layer.msg(res.font,{icon:res.code});
+                            getCountprice()
+                            if(res.code==1){
+                                _this.parents('tr').remove();
+                            }
+                        },
+                        'json'
+                    )
+                })
+            })
+            //清空购物车
+            $(document).on("click","#delete",function(){
+                //alert('2');
+                var _this=$(this);
+                layer.confirm('是否全部删除',{icon:3,title:'提示'},function(index){
+                    $.post(
+                    "{:url('cart/alldel')}",
+                    function(res){
+                        layer.msg(res.font,{icon:res.code});
+                       // console.log(res);
+                        if(res.code==1){
+                     
+                        location.href="{:url('cart/cartlist')}"
+                        
+                        layer.close(index);
+                        }
+                    },
+                    'json'
+                    );             
+                }) 
+
+            })
+            //收藏
+            $(document).on("click","#praise",function(){
+                var res=checkLogin();
+                if(res=='true'){
+                // alert(222);
+                var _this=$(this);
+                var goods_name=_this.parents("tr").attr("goods_name");
+                var goods_price=_this.parents("tr").attr("goods_price");
+                var goods_img=_this.parents("tr").attr("goods_img");
+              
+                var goods_id=_this.parents("tr").attr("goods_id");
+
+                $.post(
+                    "{:url('cart/praise')}",
+                     {goods_id:goods_id,goods_name:goods_name,goods_price:goods_price,goods_img:goods_img},
+                     function(res){
+                         layer.msg(res.font,{icon:res.code});
+                       // console.log(res);
+                    
+                     },
+                     'json'
+                )
+                }else{
+                    layer.msg("请登录",{icon:2,time:2000},function(){
+                    location.href="{:url('Login/login')}";
+                   })
+                }
+               
+               
+            })
+            //确认结算
+            $(document).on("click","#confirmCount",function(){
+                // alert("2");
+               var res=checkLogin();
+               if(res=='true'){
+                
+                   var box=$(".box");
+                   var goods_id='';
+                   box.each(function(index){
+                       if($(this).prop("checked")==true){
+                           goods_id+=$(this).parents("tr").attr("goods_id")+',';
+                       }
+                   })
+                 //  console.log(goods_id);
+                var  goods_id=goods_id.substr(0,goods_id.length-1);
+                 //console.log(goods_id);
+                 location.href="{:url('Order/confirmCount')}?goods_id="+goods_id;
+               }else{
+                   layer.msg("请登录",{icon:2,time:2000},function(){
+                    location.href="{:url('Login/login')}";
+                   })
+               }
+            })
+            //看看是否登陆
+            function checkLogin(){
+                $.ajax({
+                    type:'post',
+                    url:"{:url('Order/checkLogin')}",
+                    async:false,
+                    dataType:'json',
+                    success:function(res){
+                      status = res.login_status;
+                     //console.log(res);
+                    }
+                })
+               return status;
+            }
+        })
+       })
+    </script>
+    
+   

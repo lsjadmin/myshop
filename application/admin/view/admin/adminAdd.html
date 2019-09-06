@@ -1,0 +1,113 @@
+<div style="padding: 15px; color:blue;">管理员
+    <form class="layui-form" action="" method="post">
+        <div class="layui-form-item">
+          <label class="layui-form-label">输入框</label>
+          <div class="layui-input-inline">
+              <!-- lay-verify="required|username" -->
+            <input type="text" name="admin_name" id="name" required placeholder="请输入标题" autocomplete="on" class="layui-input">
+          </div>
+        </div>
+        <!-- required lay-verify="required|userpwd" -->
+        <div class="layui-form-item">
+          <label class="layui-form-label">密码框</label>
+          <div class="layui-input-inline">
+            <input type="password" name="admin_pwd" placeholder="请输入密码" autocomplete="on" class="layui-input">
+          </div>
+        </div>
+        <!-- lay-verify="required|phone" -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">手机</label>
+            <div class="layui-input-inline">
+              <input type="tel" name="admin_tel" required placeholder="请输入手机号" autocomplete="on" class="layui-input">
+            </div>
+          </div>
+          <!-- required lay-verify="required|email" -->
+          <div class="layui-form-item">
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-inline">
+              <input type="email" name="admin_email" placeholder="请输入邮箱" autocomplete="on" class="layui-input">
+            </div>
+          </div>
+
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                  <button class="layui-btn" lay-submit lay-filter="demo">立即提交</button>
+                  <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+              </div>
+  
+    </form>
+
+</div>
+
+<script>
+  $(function(){
+    layui.use(['form','layer'], function(){
+    var layer=layui.layer;
+    var form = layui.form;
+   // console.log(form);
+    //验证
+    var name_faly;
+    form.verify({
+        username: function(value, item){ //value：表单的值、item：表单的DOM对象
+          var reg=/^[a-z]\w{3,10}$/;
+          if(!reg.test(value)){
+            return '用户允许用数字 字母 下划线 4到12位';
+          }else{
+
+          $.ajax({
+                type:'post',
+                url:"{:url('Admin/checkName')}",
+                data:{admin_name:value,type:1},
+                async:false,
+           }).done(function(res){
+                if(res=='no'){
+                  name_flay='管理员名称不能重复';
+                }else{
+                  name_flay='';
+                }
+           });
+           if(name_flay!=''){
+              return name_flay;
+           }
+          
+        }
+   }
+      ,userpwd: function(value, item){ //value：表单的值、item：表单的DOM对象
+          var reg=/^\d{6,10}$/;
+          if(!reg.test(value)){
+            return '密码允许用数字 6到10位';
+          }
+      }
+   });  
+  //监听提交
+  form.on('submit(demo)', function(data){
+      $.post(
+        "{:url('Admin/adminAdd')}",
+        data.field,
+        function(res){
+          if(res.code=='1'){
+            layer.open({
+                content:res.font
+                ,btn:['继续添加','进入展示']
+                ,yes:function(index,layero){
+                  location.href="{:url('Admin/adminAdd')}"
+                },
+                btn2:function(index,layero){
+                  location.href="{:url('Admin/adminList')}"
+                }
+            });
+          }else{
+            layer.msg(res.font, {icon:res.code});
+          }
+        
+        },
+        'json'
+      )
+      
+  return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+    });
+  });
+})
+</script>

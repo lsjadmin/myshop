@@ -1,0 +1,45 @@
+<?php if (!defined('THINK_PATH')) exit(); /*a:1:{s:72:"D:\phpStudy\WWW\myshopa\public/../application/index\view\index\show.html";i:1551941384;}*/ ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+   
+            发送qq：<input type="text"> <br>
+            发送文本 <textarea name="" id="" cols="30" rows="10"></textarea>
+
+        
+
+   
+     
+   
+    
+    <input type="submit" id="email" value="发送">
+</body>
+</html>
+<script src="__STATIC__/jquery-3.1.1.min.js"></script>
+<script>
+   $(function(){
+        $("#email").click(function(){
+            var _this=$(this);
+             var email=_this.parent('body').find('input').val();
+             var code=_this.parent('body').find('textarea').val();
+            //  console.log(email);
+            //  console.log(code);
+            //var email=_this.siblings("input").val();
+         
+            $.post(
+                "<?php echo url('Index/showo'); ?>",
+                {email:email,code:code},
+                function(res){
+                    console.log(res);
+                }
+            );
+        }) 
+    })
+</script>

@@ -1,0 +1,172 @@
+<div style="padding: 15px; color:blue;">商品展示
+   
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>table模块快速使用</title>
+         
+        </head>
+        <body>
+            <form class="layui-form">
+                    <div class="layui-input-inline">
+                            请搜索：<input type="text" name="goods_name">
+                               
+                 </div>
+                 <div class="layui-input-inline">
+                            <label class="layui-form-label">品牌</label>
+                            <select name="brand_id" id="brand_name">
+                                    <option value="">--请选择--</option>
+                                    {foreach $arr as $v}
+                                      <option value="{$v.brand_name}">{$v.brand_name}</option>
+                                    {/foreach}
+                            </select>
+                 </div>
+                 <div class="layui-input-inline">
+                        <label class="layui-form-label">分类</label>
+                        <select name="cate_id" id="cate_name">
+                                <option value="">--请选择--</option>
+                              {foreach $cateinfo as $v}
+                              <option value="{$v.cate_id}">{:str_repeat('&nbsp;&nbsp;',$v['lev'])}{$v.cate_name}</option>     
+                              {/foreach}
+                          </select>
+                </div>
+                <div class="layui-input-inline">
+                        <label class="layui-form-label">上架下架</label>
+                        <select name="is_up" id="is_up">
+                               
+                                <option value="">--请选择--</option>
+                              <option value="1">上架</option>     
+                              <option value="2">下架</option> 
+                          </select>
+                </div>
+                <div class="layui-input-inline">
+                        <label class="layui-form-label"></label>
+                        <input type="button" id="search" value="搜索"> 
+                </div>
+              
+            </form>
+         
+        <table id="demo" lay-filter="test"></table>
+        <script type="text/html" id="barDemo">
+          <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+          <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        </script>
+        
+       
+        <script>
+        layui.use(['table','layer'], function(){
+          var table = layui.table;
+          var layer=layui.layer;
+          
+          //第一个实例
+          table.render({
+            elem: '#demo'
+            ,height: 312
+            ,url:"{:url('Goods/find')}" //数据接口
+            
+            ,cols: [[ //表头
+            //{checkbox: true, fixed: true},
+            {field: 'goods_id', title: 'ID', width:80, sort: true, fixed: 'left'}
+            ,{field: 'goods_name', title: '商品名', width:80,edit:'text'}
+            ,{field: 'brand_name', title: '品牌名称', width:80,edit:'text'}
+            ,{field: 'cate_name', title: '分类名称', width:80,edit:'text'}
+            ,{field: 'is_up', title: '是否展示', width:100,edit:'text'} 
+            ,{field: 'market_price', title: '市场价格', width:100,edit:'text'} 
+            //,{field: 'market_price', title: '市场价格', width:80,edit:'text'} 
+             
+            ,{field: 'goods_desc', title: '品牌详细信息', width: 100,edit:'text'}
+            ,{field: 'goods_num', title: '库存', width: 100}
+            ,{field: 'goods_core', title: '积分', width:80,edit:'text'}
+            ,{field: 'create_time', title: '添加时间', width:120}
+            ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:150}
+            ]]
+            ,page:{
+            'count':'count',
+            'limit':2,//每页展示条数
+            'limits':[1,2,3],//选择每页展示多少条
+            }
+          });
+          //搜索
+          $("#search").click(function(){
+              //获取搜索的条件
+              var goods_name=$("input[name='goods_name']").val();
+                var brand_name=$("#brand_name").val();
+                var cate_id=$("#cate_name").val();
+                var is_up=$("#is_up").val();
+            
+            //   console.log(goods_name);
+            //   console.log(cate_name);
+            //   console.log(brand_name);
+            //   console.log(is_up);
+              //表格重载
+              table.reload('demo',{
+                  where:{
+                    goods_name:goods_name,
+                     brand_name:brand_name,
+                     cate_id:cate_id,
+                    is_up:is_up,
+                  }
+                  ,page:{
+                    curr:1
+                  }
+              })
+              return false;
+          })
+           //即点即改
+           table.on('edit(test)', function(obj){ //注：edit是固定事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var _value=obj.value; //得到修改后的值
+            var field=obj.field;//当前编辑的字段名
+            var goods_id=obj.data.goods_id//所在行的所有相关数据
+            $.post(
+              "{:url('goods/goodsedit')}",
+              {value:_value,field:field,goods_id:goods_id},
+              function(result){
+                // console.log(result);
+                 layer.msg(result.font,{icon:result.code});
+                 table.reload('demo');
+              },
+              'json'
+            );
+        });
+       
+           //(删除)监听行工具事件
+            table.on('tool(test)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+              var data = obj.data //获得当前行数据
+                var _event = obj.event; //获得 lay-event 对应的值
+              if(_event === 'del'){
+                layer.confirm("确定要删除吗", {icon: 3, title:'提示'}, function(index){
+                  // console.log('aa');
+                  $.post(
+                        "{:url('Goods/goodsdel')}",
+                        {goods_id:data.goods_id},
+                          function(result){
+                           // console.log(res);
+                            layer.msg(result.font,{icon:result.code});
+                            if(result.code=='1'){
+                              table.reload('demo');
+                            }
+                          },
+                          'json'
+                      )
+                     
+                  layer.close(index);
+                });
+              } else if(_event === 'edit'){
+                layer.confirm('真的修改行么', function(index){
+      
+                  location.href='goodsUpd?goods_id='+data.goods_id;
+                 // location.href="{:url('Admin/adminUpda')}?admin_id"+data.admin_id;
+                  
+                });
+              }
+            });
+        });
+        </script>
+        </body>
+        </html>
+
+
+    
+</div>
+</div>

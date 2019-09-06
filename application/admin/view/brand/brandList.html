@@ -1,0 +1,121 @@
+<div style="padding: 15px; color:blue;">品牌展示
+   
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>table模块快速使用</title>
+         
+        </head>
+        <body>
+         <div>
+           请搜索：<input type="text" name="brand_name">
+           <input type="button" id="search" value="搜索">
+         </div>
+         
+        <table id="demo" lay-filter="test"></table>
+        <script type="text/html" id="barDemo">
+          <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+          <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        </script>
+        
+       
+        <script>
+        layui.use(['table','layer'], function(){
+          var table = layui.table;
+          var layer=layui.layer;
+          
+          //第一个实例
+          table.render({
+            elem: '#demo'
+            ,height: 312
+            ,url:"{:url('Brand/find')}" //数据接口
+            
+            ,cols: [[ //表头
+            //{checkbox: true, fixed: true},
+            {field: 'brand_id', title: 'ID', width:80, sort: true, fixed: 'left'}
+            ,{field: 'brand_name', title: '品牌名', width:180,edit:'text'}
+           
+            ,{field: 'brand_show', title: '是否展示', width:180,edit:'text'} 
+            ,{field: 'brand_desc', title: '品牌详细信息', width: 177,edit:'text'}
+            ,{field: 'brand_url', title: '品牌网址', width: 177}
+            ,{field: 'create_time', title: '添加时间', width: 177}
+            ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:150}
+            ]]
+            ,page:{
+            'count':'count',
+            'limit':2,//每页展示条数
+            'limits':[1,2,3],//选择每页展示多少条
+            }
+          });
+          //搜索
+          $("#search").click(function(){
+              //获取搜索的条件
+              var brand_name=$("input[name='brand_name']").val();
+              //console.log(brand_name);
+              //表格重载
+              table.reload('demo',{
+                  where:{
+                    brand_name:brand_name
+                  }
+                  ,page:{
+                    curr:1
+                  }
+              })
+          })
+           //即点即改
+           table.on('edit(test)', function(obj){ //注：edit是固定事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var _value=obj.value; //得到修改后的值
+            var field=obj.field;//当前编辑的字段名
+            var brand_id=obj.data.brand_id//所在行的所有相关数据
+            $.post(
+              "{:url('Brand/brandedit')}",
+              {value:_value,field:field,brand_id:brand_id},
+              function(result){
+                // console.log(result);
+                 layer.msg(result.font,{icon:result.code});
+                 table.reload('demo');
+              },
+              'json'
+            );
+        });
+       
+           //(删除)监听行工具事件
+            table.on('tool(test)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+              var data = obj.data //获得当前行数据
+                var _event = obj.event; //获得 lay-event 对应的值
+              if(_event === 'del'){
+                layer.confirm("确定要删除吗", {icon: 3, title:'提示'}, function(index){
+                  // console.log('aa');
+                  $.post(
+                        "{:url('Brand/branddel')}",
+                        {brand_id:data.brand_id},
+                          function(result){
+                           // console.log(res);
+                            layer.msg(result.font,{icon:result.code});
+                            if(result.code=='1'){
+                              table.reload('demo');
+                            }
+                          },
+                          'json'
+                      )
+                     
+                  layer.close(index);
+                });
+              } else if(_event === 'edit'){
+                layer.confirm('真的修改行么', function(index){
+      
+                  location.href='brandUpd?brand_id='+data.brand_id;
+                 // location.href="{:url('Admin/adminUpda')}?admin_id"+data.admin_id;
+                  
+                });
+              }
+            });
+        });
+        </script>
+        </body>
+        </html>
+
+
+    
+</div>

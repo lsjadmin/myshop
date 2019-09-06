@@ -1,0 +1,126 @@
+<div style="padding: 15px; color:blue;">文章
+        <form class="layui-form"> <!-- 提示：如果你不想用form，你可以换成div等任何一个普通元素 -->
+            <div class="layui-form-item">
+              <label class="layui-form-label">文章姓名</label>
+              <div class="layui-input-block">
+                  <!-- lay-verify="required|username" -->
+                <input type="text" name="essay_name" required placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">文章内容</label>
+                    <div class="layui-input-block">
+                      <textarea name="essay_desc" required placeholder="请输入内容" class="layui-textarea"></textarea>
+                    </div>
+                  </div>
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">分类</label>
+                    <div class="layui-input-inline">
+                      <select name="c_id" >
+                        {foreach $arr as $v}
+                          <option value="{$v.c_id}">{$v.c_name}</option>
+                        {/foreach}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="layui-form-item">
+                        <label class="layui-form-label">发布时间</label>
+                        <div class="layui-input-block">
+                          <input type="radio" name="time" value="1" title="立即发布" lay-filter="filter">
+                          <input type="radio" name="time" value="2" title="定时发布" lay-filter="filter" class="a">
+                          <input type="text" name="create_time" style="display: none;" id="a">
+                        </div>
+                      </div>
+
+            
+
+                
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                  <button class="layui-btn" lay-submit lay-filter="demo">立即提交</button>
+                  <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+              </div>
+  
+        </form>
+</div>
+
+<script>
+  $(function(){
+layui.use(['form','layer'], function(){
+  var form = layui.form;
+  var layer=layui.layer;
+  
+  //各种基于事件的操作，下面会有进一步介绍
+  var name_faly;
+    form.verify({
+        username: function(value, item){ //value：表单的值、item：表单的DOM对象
+          var reg=/^[a-z]{6,}$/;
+          if(!reg.test(value)){
+            return '文章名称英文、6位以上';
+          }else{
+
+          $.ajax({
+                type:'post',
+                url:"{:url('Essay/checkName')}",
+                data:{essay_name:value},
+                async:false,
+           }).done(function(res){
+             //console.log(res);
+                if(res=='no'){
+                  name_flay='文章名称不能重复';
+                }else{
+                  name_flay='';
+                }
+           });
+           if(name_flay!=''){
+              return name_flay;
+           }
+          
+        }
+   }
+
+   }); 
+       //监听提交
+ //定时发布点击
+ form.on('radio(filter)', function(data){
+      var _value=data.value;
+          if(_value==2){
+            $("#a").show();
+          }else{
+            $("#a").hide();
+          }
+    });  
+
+ form.on('submit(demo)', function(data){
+    console.log(data.field);
+      $.post(
+        "{:url('Essay/essayAdd')}",
+        data.field,
+        function(res){
+         // console.log(res);
+          if(res.code=='1'){
+            layer.open({
+                content:res.font
+                ,btn:['继续添加','进入展示']
+                ,yes:function(index,layero){
+                  location.href="{:url('Essay/essayAdd')}"
+                },
+                btn2:function(index,layero){
+                  location.href="{:url('Essay/essayList')}"
+                }
+            });
+          }else{
+            layer.msg(res.font, {icon:res.code});
+          }
+        
+        },
+        'json'
+      )
+      
+  return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+    });
+});  
+});
+</script>

@@ -1,0 +1,142 @@
+<div style="padding: 15px; color:blue;">品牌
+        <form class="layui-form" action="">
+          <input type="hidden" name="brand_id" value="{$brandInfo.brand_id}">
+            <input type="hidden" id="brand" name="brand_logo">  
+                <div class="layui-form-item">
+                  <label class="layui-form-label">品牌名称</label>
+                  <div class="layui-input-inline">
+                      <!-- lay-verify="required|username" -->
+                    <input type="text" name="brand_name" required placeholder="请输入标题" autocomplete="on" class="layui-input" value="{$brandInfo.brand_name}">
+                  </div>
+                </div>
+                
+                  
+                
+                <div class="layui-form-item">
+                  <label class="layui-form-label">是否展示</label>
+                  <div class="layui-input-block">
+                    <?php if($brandInfo['brand_show']==1){?>
+                    <input type="radio" name="brand_show" value="1" title="是" checked>
+                    <input type="radio" name="brand_show" value="0" title="否">
+                    <?php }else{?>
+                      <input type="radio" name="brand_show" value="1" title="是">
+                      <input type="radio" name="brand_show" value="0" title="否"checked>
+                      <?php }?>
+                  </div>
+                </div>
+
+                <div class="layui-form-item layui-form-text">
+                  <label class="layui-form-label">文本域</label>
+                  <div class="layui-input-block">
+                    <textarea name="brand_desc" placeholder="请输入内容" class="layui-textarea">{$brandInfo.brand_url}</textarea>
+                  </div>
+                </div>
+                <div class="layui-form-item">
+                  <label class="layui-form-label">品牌网址</label>
+                  <div class="layui-input-inline">
+                      <!-- lay-verify="required|username" -->
+                    <input type="text" name="brand_url" required placeholder="请输入网址" autocomplete="off" class="layui-input" value="{$brandInfo.brand_url}">
+                  </div>
+                </div>
+            
+                <div class="layui-upload">
+                        <label class="layui-form-label">品牌logo</label>
+                          <div class="layui-upload-list">
+                              <button type="button" class="layui-btn" id="brand_logo">
+                                  <i class="layui-icon">&#xe67c;</i>上传图片
+                                </button>
+                                <img src="/public/uploads/{$brandInfo.brand_logo}" alt="暂无图片" width="100px" id="logo">
+                       </div>
+                      
+              </div> 
+             
+                <div class="layui-form-item">
+                  <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="demo">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                  </div>
+                </div>
+              </form>
+               
+</div>
+<script>
+    $(function(){
+      layui.use(['form','layer','upload'], function(){
+      var layer=layui.layer;
+      var form = layui.form;
+      var upload=layui.upload;
+     // console.log(form);
+      //验证
+      var name_faly;
+      form.verify({
+          username: function(value, item){ //value：表单的值、item：表单的DOM对象
+            var reg=/^[\x{4e00}-\x{9fa5}]{3,5}$/;
+            if(!reg.test(value)){
+              return '品牌必须是汉字3到5个';
+            }else{
+  
+            $.ajax({
+                  type:'post',
+                  url:"{:url('Brand/checkName')}",
+                  data:{brand_name:value},
+                  async:false,
+             }).done(function(res){
+                  if(res=='no'){
+                    name_flay='品牌名称不能重复';
+                  }else{
+                    name_flay='';
+                  }
+             });
+             if(name_flay!=''){
+                return name_flay;
+             }
+            
+          }
+     }
+      
+     });  
+    //监听提交
+    
+    form.on('submit(demo)', function(data){
+    //  console.log(data.field);
+        $.post(
+          "{:url('Brand/brandUpdata')}",
+          data.field,
+          function(res){
+           // console.log(res);
+            if(res.code=='2'){
+            layer.msg(res.font, {icon:res.code});
+          }else{
+            layer.msg(res.font, {icon:res.code,time:1000},function(){
+              location.href="{:url('Brand/brandList')}"
+            });
+          }
+          },
+          'json'
+        )
+        
+    return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+      });
+    //图片上传
+    var uploadInst = upload.render({
+    elem: '#brand_logo' //绑定元素
+    // ,multiple:true
+    // ,number:3
+    ,url: "{:url('Brand/upload')}?brand_id="+'brand_id' //上传接口
+    ,done: function(res){
+      layer.msg(res.font,{icon:res.code});
+      $("#brand").val(res.src);
+      $("#logo").prop('src',"/public/uploads/"+res.src);
+      //上传完毕回调
+    }
+    ,error: function(){
+      console.log('异常');
+      //请求异常回调
+    }
+  });
+  
+    });
+    
+
+  })
+  </script>

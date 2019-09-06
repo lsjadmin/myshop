@@ -1,0 +1,17 @@
+<div style="padding: 15px; color:blue;">文章展示
+       <table>
+             <tr>
+                <td>id</td>
+                <td>姓名</td>
+                <td>内容</td>
+             </tr>
+             {volist name="essayInfo" id="v"}
+             <tr>
+               <td>{$v.essay_id}</td>
+               <td>{$v.essay_name}</td>
+               <td>{$v.essay_desc}</td>
+             </tr>
+             {/volist}
+       </table>
+
+ </div>

@@ -1,0 +1,97 @@
+<div style="padding: 15px; color:blue;">分类展示
+    <table class="layui-table">
+        <colgroup>
+          <col width="150">
+          <col width="200">
+          <col>
+        </colgroup>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>名称</th>
+            <th>是否展示</th>
+            <th>是否在导航栏展示</th>
+            <th>操作</th>
+          </tr> 
+        </thead>
+        <tbody id="show">
+            {volist name="data" id="v"}
+            <tr pid="{$v.pid}"cate_id="{$v.cate_id}" style="display:none;">
+            <td>
+                  {:str_repeat('&nbsp;&nbsp;',($v['lev'])*3)}
+                  <a href="javascript:;"class="change">+</a>
+                {$v.cate_id}
+               
+            </td>
+            <td>
+                 {:str_repeat('&nbsp;&nbsp;',($v['lev'])*3)}
+                <span class="spaninput">{$v.cate_name}</span>
+                <input type="text" class="change" style="display:none;" colum="cate_name" cate_id="{$v.cate_id}" value="{$v.cate_name}">
+            </td>
+            <td class="test" colum="cate_show" value="{$v.cate_show}">{$v.cate_show}</td>
+            <td class="test" colum="cate_nevshow" value="{$v.cate_nevshow}">{$v.cate_nevshow}</td>
+            <td>
+                <a href="javascript:;" class="del" cate_id="{$v.cate_id}">删除</a>
+                <a href="{:url('Cate/cateUpd')}?cate_id={$v['cate_id']}">修改</a>
+
+            </td>
+          </tr>
+          {/volist}
+        </tbody>
+      </table>
+</div>
+<script>
+  $(function(){
+    layui.use(['form','layer'], function(){
+      var layer=layui.layer;
+    $("#show").find("tr[pid=0]").show();
+    $(".change").click(function(){
+      var _this=$(this);
+      var sign=_this.text();
+      var cate_id=_this.parents("tr").attr("cate_id");
+      if(sign=="+"){
+        //给当前分类下的子类展示
+        var _tr=$("#show").children("tr[pid="+cate_id+"]").show();
+        //当前点击符号变成-
+        if(_tr.length>0){
+          _tr.show();
+          _this.text("-");
+        }
+        
+      }else{
+         //当前点击符号变成-
+         _this.text("+");
+         //给当前分类下的子类隐藏，调用函数
+          trHIde(cate_id);
+        // $("#show").children("tr[pid="+cate_id+"]").hide();
+      }
+    });
+    //递归收缩
+    function trHIde(cate_id){
+      var _tr=$("#show").children("tr[pid="+cate_id+"]");
+      _tr.each(function(index){
+          var c_id=$(this).attr('cate_id');
+          trHIde(c_id);
+      })
+      _tr.hide();
+      _tr.find("a[class='change']").text("+");
+    }
+      //删除
+      $(".del").click(function(){
+          var _this=$(this);
+          var cate_id=_this.attr("cate_id");
+         // console.log(cate_id);
+         $.get(
+           "{:url('Cate/cateDel')}",
+           {cate_id:cate_id},
+           function(res){
+              if(res==1){
+                _this.parents("tr").remove();
+              }
+           }
+         )
+      })
+    });
+
+  });
+</script>

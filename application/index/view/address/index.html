@@ -1,0 +1,280 @@
+
+<script type="text/javascript" src="__STATIC__/js/n_nav.js"></script>
+{include file="public/userTop" /}
+<div class="i_bg bg_color">
+    <!--Begin 用户中心 Begin -->
+	<div class="m_content">
+        {include file="public/userLeft" /} 		
+		<div class="m_right">
+            <p></p>
+            <div class="mem_tit">收货地址</div>
+	
+            <!-- 展示 -->
+            {volist name="addressInfoa" id="v"}
+            {if condition="$v['is_default'] eq 1"}
+            <div class="address" style="color:red">
+            <div class="list" style="float: right;padding-top: 10px;">
+              <a href="#">
+                <input type="hidden" id="{$v.address_id}" name="id">
+                <img src="__STATIC__/images/a_close.png" / class="del">
+              </a>
+            </div>
+              <table border="0" class="add_t" align="center" style="width:98%; margin:10px auto;" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td colspan="2" style="font-size:14px; color:#ff4e00;"> </td>
+                  </tr>
+                  <tr>
+                    <td align="right" width="80">收货人姓名：</td>
+                    <td>{$v.address_name}</td>
+                  </tr>
+                  <tr>
+                    <td align="right">配送区域：</td>
+                    <td>{$v.province}{$v.city}{$v.area}</td>
+                  </tr>
+                  <tr>
+                    <td align="right">详细地址：</td>
+                    <td>{$v.address_detail}</td>
+                  </tr>
+                  <tr>
+                    <td align="right">手机：</td>
+                    <td>{$v.address_tel}</td>
+                  </tr>
+                  <tr>
+                    <td align="right">邮政编码：</td>
+                    <td>{$v.address_mail}</td>
+                  </tr>
+                </table>
+                <p align="right">
+                    <input type="hidden" id="{$v.address_id}" name="id">
+                    {if condition="$v['is_default'] eq 2"}
+                    <a href="#" style="color:#ff4e00;" class="default">设为默认</a>&nbsp; &nbsp; &nbsp; &nbsp; 
+                    {/if}
+                    <a href="{:url('Address/addressUpdate')}?address_id={$v.address_id}" style="color:#ff4e00;">编辑</a>&nbsp; &nbsp; &nbsp; &nbsp; 
+                  </p>
+             </div>
+
+             {else /}
+
+             <div class="address">
+                    <div class="list" style="float: right;padding-top: 10px;">
+                      <a href="#">
+                        <input type="hidden" id="{$v.address_id}" name="id">
+                        <img src="__STATIC__/images/a_close.png" / class="del">
+                      </a>
+                    </div>
+                      <table border="0" class="add_t" align="center" style="width:98%; margin:10px auto;" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td colspan="2" style="font-size:14px; color:#ff4e00;"> </td>
+                          </tr>
+                          <tr>
+                            <td align="right" width="80">收货人姓名：</td>
+                            <td>{$v.address_name}</td>
+                          </tr>
+                          <tr>
+                            <td align="right">配送区域：</td>
+                            <td>{$v.province}{$v.city}{$v.area}</td>
+                          </tr>
+                          <tr>
+                            <td align="right">详细地址：</td>
+                            <td>{$v.address_detail}</td>
+                          </tr>
+                          <tr>
+                            <td align="right">手机：</td>
+                            <td>{$v.address_tel}</td>
+                          </tr>
+                          <tr>
+                            <td align="right">邮政编码：</td>
+                            <td>{$v.address_mail}</td>
+                          </tr>
+                        </table>
+                        <p align="right">
+                            <input type="hidden" id="{$v.address_id}" name="id">
+                            {if condition="$v['is_default'] eq 2"}
+                            <a href="#" style="color:#ff4e00;" class="default">设为默认</a>&nbsp; &nbsp; &nbsp; &nbsp; 
+                            {/if}
+                            <a href="{:url('Address/addressUpdate')}?address_id={$v.address_id}" style="color:#ff4e00;">编辑</a>&nbsp; &nbsp; &nbsp; &nbsp; 
+                          </p>
+              </div>
+
+            {/if} 
+            {/volist}
+               
+
+            </div>
+
+            <div class="mem_tit">
+            	<a href="#"><img src="__STATIC__/images/add_ad.gif" /></a>
+            </div>
+            <table border="0" class="add_tab" style="width:930px;"  cellspacing="0" cellpadding="0">
+              <tr>
+                <td width="135" align="right">配送地区</td>
+                <td colspan="3" style="font-family:'宋体';">
+
+                	<select class="area" style="background-color:#f6f6f6;" id="province">
+                   
+                      <option selected value='0'>--请选择--</option>
+                      {volist name="areaInfo" id="v"}
+                      <option value="{$v.id}">{$v.name}</option>
+                      {/volist}
+
+                  </select>
+                	<select class="area" name="province" id="city">
+                      <option selected value='0'>--请选择--</option>
+                   </select>
+                    <select class="area" name="city"  id="area">
+                        <option selected value='0'>--请选择--</option>
+                    </select>
+                   
+
+
+                    （必填）
+                </td>
+              </tr>
+              <tr>
+                <td align="right">收货人姓名</td>
+                <td style="font-family:'宋体';"><input type="text" id="address_name" class="add_ipt" />（必填）</td>
+                <td align="right">手机号</td>
+                <td style="font-family:'宋体';"><input type="text" id="address_tel" class="add_ipt" />（必填）</td>
+              </tr>
+              <tr>
+                <td align="right">详细地址</td>
+                <td style="font-family:'宋体';"><input type="text" id="address_detail" class="add_ipt" />（必填）</td>
+                <td align="right">邮政编码</td>
+                <td style="font-family:'宋体';"><input type="text" id="address_mail" class="add_ipt" /></td>
+              </tr>
+              <tr>
+                <td>
+                  是否设置为默认地址
+                  <input type="checkbox" id="is_default">
+                </td>
+              </tr>
+            </table>
+           	<p align="right">
+            	<a href="#">删除</a>&nbsp; &nbsp; <a href="#" class="add_b">确认添加</a>
+            </p> 
+           
+
+            
+        </div>
+    </div>
+<script>
+  $(function(){
+      layui.use('layer',function(){
+        //三级联动
+        $(document).on("change",".area",function(){
+          var _this=$(this);
+          var id=_this.val();
+          var _option="<option selected value='0'>--请选择--</option>";
+          $.post(
+            "{:url('Address/getArea')}",
+            {id:id},
+            function(res){
+                if(res.code=1){
+                  for(var i in res['areaInfo']){
+                    _option+="<option value='"+res['areaInfo'][i]['id']+"'>"+res['areaInfo'][i]['name']+"</option>"
+                  }
+                  _this.next('select').html(_option);
+                }else{
+                  layer.msg(res.font,{icon:res.code})
+                }
+           
+            },
+            'json'
+          )
+        })
+
+        //添加
+        $(document).on("click",".add_b",function(){
+            // alert('1');
+              var obj={};
+              obj.province=$("#province").val();
+             console.log(obj.province);
+              obj.city=$("#city").val();
+              obj.area=$("#area").val();
+              obj.address_name=$("#address_name").val();
+              obj.address_tel=$("#address_tel").val();
+              obj.address_detail=$("#address_detail").val();
+              obj.address_mail=$("#address_mail").val();
+              var is_default=$("#is_default").prop("checked");
+              if(is_default==true){
+                obj.is_default=1;
+              }else{
+                obj.is_default=2;
+              }
+              //验证
+              if(obj.province==0){
+                layer.msg('请填写省份');
+                return false;
+              }
+              if(obj.address_name==''){
+                layer.msg('请填写用户名');
+                return false;
+              }
+              if(obj.address_tel==''){
+                layer.msg('手机号不能为空');
+                return false;;
+              }
+              var res=/^\d{11}$/;
+              if(!res.test(obj.address_tel)){
+                layer.msg('请填写手机号并且11位');
+                return false;
+              }
+
+              //console.log(obj);
+              //添加
+              $.post(
+                  "{:url('Address/addressDb')}",
+                  obj,
+                  function(res){
+                      //console.log(res);
+                      history.go(0);
+                      layer.msg(res.font,{icon:res.code});
+                  },
+                  'json'
+              )
+            
+        })
+        //删除
+        $(document).on("click",".del",function(){
+        //  alert("1");
+          var _this=$(this);
+          var id=_this.prev('input').attr('id');
+         // console.log(id);
+          $.post(
+            "{:url('Address/addressdel')}",
+            {id:id},
+            function(res){
+              // console.log(res)
+              layer.msg(res.font,{icon:res.code});
+              if(res.code==1){
+                  _this.parents("div[class='address']").remove();
+              }
+            },
+            'json'
+            
+          )
+        })
+        //点击默认
+        $(document).on("click",".default",function(){
+          //alert('1');
+          var _this=$(this);
+          var id=_this.prev('input').attr('id');
+         // console.log(id);
+            $.post(
+              "{:url('Address/addressdefault')}",
+              {id:id},
+              function(res){
+                // consoe.log(res);
+                layer.msg(res.font,{icon:res.code});
+                if(res.code==1){
+                 
+                  history.go(0);
+                 
+                }
+              },
+              'json'
+            )
+        })
+      })
+  })
+</script>
